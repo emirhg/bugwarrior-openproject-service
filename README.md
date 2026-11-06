@@ -7,8 +7,10 @@ This is stil an on-working project not intendeed for general public, anyway, fee
 # Development
 
 ```
-  python3 -m build && pip install dist/bugwarrior-service-openproject-1.0.0.tar.gz
+  python3 -m build && pipx inject bugwarrior dist/bugwarrior_service_openproject-1.0.1-py3-none-any.whl
 ```
+
+The module is installed as `bugwarrior/services/openproject.py`, next to bugwarrior's own services. It must be injected into the same pipx environment as bugwarrior.
 
 # Setup
 

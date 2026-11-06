@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-from setuptools import setup, find_packages
+from setuptools import setup
 
 setup(
-    name="bugwarrior-service-openproject", # Replace with your own username
-    version="1.0.0",
+    name="bugwarrior-service-openproject",
+    version="1.0.1",
     zip_safe=False,
 
     author="Emir Herrera González",
@@ -12,9 +12,16 @@ setup(
     long_description="A service to pull OpenProject Work Packages into TaskWarrior via BugWarrior",
     long_description_content_type="text/plain",
     url="https://github.com/emirhg/bugwarrior-openproject-service",
-    # packages=['openproject'],
-    py_modules=['bugwarriorServiceOpenproject'],
-    # py_modules=['openproject'],
+    # Installs into the existing bugwarrior.services package (bugwarrior's
+    # own __init__.py is not shipped, so it is never overwritten).
+    package_dir={"": "src"},
+    py_modules=["bugwarrior.services.openproject"],
+    install_requires=[
+        "isodate",
+        "python-dateutil",
+        "requests",
+        "taskw",
+    ],
 
     classifiers=[
         "Programming Language :: Python :: 3",
@@ -24,8 +31,6 @@ setup(
     python_requires='>=3.8',
     entry_points="""
     [bugwarrior.service]
-    openproject=bugwarriorServiceOpenproject:OpenProjectService
+    openproject=bugwarrior.services.openproject:OpenProjectService
     """,
-    # Unsuccesful try to add this package into bugwarrior.services namespace
-    # namespace_packages=['bugwarrior.services']
 )
