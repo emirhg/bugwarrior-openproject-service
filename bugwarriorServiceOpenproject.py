@@ -26,9 +26,9 @@ import re
 import typing
 from typing import Any
 
-from dateutil.tz import tzutc
+from dateutil.parser import isoparse
+from dateutil.tz import tzlocal, tzutc
 from isodate import parse_duration
-from pytz import timezone
 import requests
 from taskw import TaskWarriorShellout
 
@@ -217,28 +217,26 @@ class OpenProjectIssue(Issue):
         category = self.record.get("category")
         assigned_to = self.record.get(
             "_links", {"assignee": None}).get("assignee")
-        localtz = timezone("America/Mexico_City")
-
         if due_date:
+            # Date-only value: end of that day in the system local zone.
             due_date = (
-                localtz.localize(
-                    self.parse_date(due_date)
-                    .replace(microsecond=0, hour=23, minute=59, second=59, tzinfo=None)
-                )
+                isoparse(due_date)
+                .replace(hour=23, minute=59, second=59, microsecond=0, tzinfo=tzlocal())
                 .astimezone(tzutc())
             )
         if start_date:
+            # Date-only value: start of that day in the system local zone.
             start_date = (
-                localtz.localize(
-                    self.parse_date(start_date).replace(
-                        microsecond=0, tzinfo=None)
-                )
+                isoparse(start_date)
+                .replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=tzlocal())
                 .astimezone(tzutc())
             )
         if created_on:
-            created_on = localtz.localize(
-                self.parse_date(created_on).replace(microsecond=0, tzinfo=None)
-            )
+            # Full UTC timestamp from the API: convert to the system local zone.
+            created_on = isoparse(created_on)
+            if created_on.tzinfo is None:
+                created_on = created_on.replace(tzinfo=tzutc())
+            created_on = created_on.astimezone(tzlocal()).replace(microsecond=0)
         if spent_hours:
             spent_hours = str(spent_hours) + " hours"
             spent_hours = self.get_converted_hours(spent_hours)
